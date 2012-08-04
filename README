@@ -1,0 +1,77 @@
+
+
+
+SETUP YOUR PROJECT
+----------------
+
+Make a project directory (and change to it); for example:
+
+mkdir /var/www/yourproject
+cd /var/www/yourproject
+
+Git init your project &etc (see normal git tutorials such as Git Magic: http://www-cs-students.stanford.edu/~blynn/gitmagic/ )
+
+Clone the repository into a folder, empiresPHPframework
+
+git clone git://github.com/jhaagsma/empiresPHPframework.git empiresPHPframework
+
+Then add a gitignore for that folder
+
+touch .gitignore
+
+And add in empiresPHPframework/ to make it ignore that folder; that way you won't version control the empiresPHPframework with your own project
+
+copy the empiresPHPframework/example/* to the base directory
+
+
+
+SETUP APACHE
+----------------
+Add an apache site configuration for your website that reroutes all requests to index.php;
+
+cd /etc/apache2/sites-available
+sudo nano yourproject
+
+file contents should be something like this:
+
+<VirtualHost *>
+    ServerAdmin webmaster@yourdomain.com
+    ServerName yourdomain.com
+    #ServerAlias www.yourdomain.com #add server aliases as required
+
+    RewriteEngine on
+    RewriteRule /* /index.php
+
+    DocumentRoot /var/www/yourproject/www
+    <Directory />
+        Options FollowSymLinks
+        AllowOverride None
+    </Directory>
+    <Directory /var/www/yourproject/www>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Order allow,deny
+        allow from all
+    </Directory>
+    ErrorDocument 404 /404.php
+    ErrorLog /var/log/apache2/yourproject/error.log
+
+    # Possible values include: debug, info, notice, warn, error, crit,
+    # alert, emerg.
+    LogLevel warn
+
+    CustomLog /var/log/apache2/yourproject/access.log combined
+    ServerSignature On
+</VirtualHost>
+
+
+Restart apache using:
+
+sudo apache2ctl restart
+
+Your project should have the non-database components set up!
+
+-------------------
+
+
+
