@@ -64,6 +64,9 @@ file contents should be something like this:
     ServerSignature On
 </VirtualHost>
 
+you can then link that to sites-enabled with
+
+ln -s /etc/apache2/sites-available/yourproject /etc/apache2/sites-enabled/yourproject 
 
 Restart apache using:
 
