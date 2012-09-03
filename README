@@ -1,4 +1,12 @@
+THIS PROJECT ASSUMES YOU HAVE APC INSTALLED; AND apache mod_xsendfile enabled; AND THE php_cli INSTALLED!
 
+REQUIRED SOFTWARE:
+mod_xsendfile                   https://tn123.org/mod_xsendfile/          (though you can get around this with apache rewrite rules)
+Alternative PHP Cache (APC)     http://ca3.php.net/manual/en/book.apc.php
+
+RECOMMENDED SOFTWARE:
+dBug                            http://dbug.ospinto.com/
+Recaptcha                       http://www.google.com/recaptcha
 
 
 SETUP YOUR PROJECT
@@ -21,7 +29,7 @@ touch .gitignore
 
 And add in empiresPHPframework/ to make it ignore that folder; that way you won't version control the empiresPHPframework with your own project
 
-copy the empiresPHPframework/example/* to the base directory
+copy the empiresPHPframework/example/* to the base directory (if you want to set up the example site)
 
 
 
@@ -76,5 +84,9 @@ Your project should have the non-database components set up!
 
 -------------------
 
+FOR THE DATABASE COMPONENTS:
 
+Create a new user and corresponding database in mysql, and put the user / pass / database names in the config file at yourproject/config.php
+PHPMyAdmin allows for automatic creation of empty databases with a new user, incidentally.
+You should move this file to somewhere more secure at some point (after setup!), and point the reference to it in example/www/index.php to wherever it resides
 

@@ -4,7 +4,7 @@ class PHPRouter {
 	public $paths;
 
 	function __construct($filetime = false){
-		trigger_error("{NODETAIL_IRC}Rebuilding Router Object for " . $_SERVER['SERVER_NAME']);
+		//trigger_error("{NODETAIL_IRC}Rebuilding Router Object for " . $_SERVER['SERVER_NAME']); //only for if you want Notices printed when the router is rebuilt
 		$this->time = ($filetime ? $filetime : time()); //so we know if it's fresh
 		//$this->paths = array("GET" => new UriPart(), "POST" =>  new UriPart());
 		$this->paths = array("GET" => array(), "POST" =>  array());
@@ -237,10 +237,10 @@ class PHPRouter {
 
 		if($type == "str")
 			$type = "string";
-		
+
 		switch($type){
 			case "u_int":
-				if(isset($source[$key])){
+				if(isset($source[$key]) && $source[$key] !== ""){
 					$ret = $source[$key];
 					
 					if(!is_numeric($ret))
@@ -262,7 +262,7 @@ class PHPRouter {
 			case "float":
 			case "double":
 			case "string":
-				if(isset($source[$key])){
+				if(isset($source[$key]) && $source[$key] !== ""){
 					$ret = $source[$key];
 
 					if(settype($ret, $type))
@@ -315,14 +315,14 @@ class PHPRouter {
 	}
 
 	function fourohfour($data, $path, $user){
-		trigger_error("404: " . $path->url);
+		//trigger_error("404: " . $path->url); //Only set this if you are sending errors somewhere other than the page being displayed
 		header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
 		$path->url = htmlentities($path->url);
 		echo <<<END
 <html>
-<head><title>Earth: Empires</title><link rel='stylesheet' href='/css/css.css' type='text/css' /></head>
-<body><div id='mainwrap'><div id='mainbody'>
-<br /><br /><br />404 - not found<br /><br />The URL you attempted to access was: {$path->url}<br /><br /><a href='/'>Back to main page</a>
+<head><title>404</title><link rel='stylesheet' href='/css/public_css.css' type='text/css' /></head>
+<body>
+<br /><br /><br />404 - not found<br /><br />The URL you attempted to access was: {$path->url}<br /><br /><a href='/'>Back to homepage!</a>
 </div></div></body>
 </html>
 END;

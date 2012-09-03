@@ -1,0 +1,35 @@
+body{
+	margin:0;
+	padding:0;
+	text-align:center;
+	background-color:#99dd99;
+	font-family:arial;
+}
+
+#top_bit{
+	padding:50px;
+	font-size:18px;
+}
+
+#copyright{
+	padding:50px;
+	font-size:10px;
+}
+
+#admin{
+	text-align:left;
+	background-color: black;
+	color: #eeeedd;
+}
+#admin a{
+ color: #cccc99;
+}
+#admin a:visited{
+ color: #999966;
+}
+
+#dbug{
+	font-family:arial;
+	font-size:10px !important;
+	padding-top:300px;
+}

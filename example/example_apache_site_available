@@ -1,0 +1,29 @@
+<VirtualHost *>
+    ServerAdmin webmaster@yourdomain.com
+    ServerName yourdomain.com
+    #ServerAlias www.yourdomain.com #add server aliases as required
+
+    RewriteEngine on
+    RewriteRule /* /index.php
+
+    DocumentRoot /var/www/yourproject/www
+    <Directory />
+        Options FollowSymLinks
+        AllowOverride None
+    </Directory>
+    <Directory /var/www/yourproject/www>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Order allow,deny
+        allow from all
+    </Directory>
+    ErrorDocument 404 /404.php
+    ErrorLog /var/log/apache2/yourproject/error.log
+
+    # Possible values include: debug, info, notice, warn, error, crit,
+    # alert, emerg.
+    LogLevel warn
+
+    CustomLog /var/log/apache2/yourproject/access.log combined
+    ServerSignature On
+</VirtualHost>
