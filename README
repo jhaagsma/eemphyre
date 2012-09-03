@@ -1,3 +1,8 @@
+The empiresPHPframework project is a basic PHP framework for fast development of a website.
+It was originally developed for http://www.earthempires.com which uses it.
+For a small example site using the framework see http://empiresphpframework.evolution2025.com/
+
+
 THIS PROJECT ASSUMES YOU HAVE APC INSTALLED; AND apache mod_xsendfile enabled; AND THE php_cli INSTALLED!
 
 REQUIRED SOFTWARE:

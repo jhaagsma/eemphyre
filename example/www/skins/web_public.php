@@ -49,6 +49,7 @@ First release, September 3, 2012
 	<div id='top_bit'>
 		<p>This is the empiresPHPframework example website!</p>
 		<p>Go to <a href='https://github.com/jhaagsma/empiresPHPframework'>https://github.com/jhaagsma/empiresPHPframework</a> to get the framework!</p>
+		<p>Or look at <a href='http://www.earthempires.com'>www.earthempires.com</a> to see a website using the framework!</p>
 	</div>
 	<div id='wrapper'>
 		<div id='content'>
