@@ -222,7 +222,7 @@ echo <<<END
 
 <pre>
 The inputs are defined as follows:
-		'testarray3'	=>array('array',null,array('array',3,'int')),
+		'testarray4'	=>array('array',null,array('array',null,array('array',null,array('array',3,'int'))))
 </pre>	
 
 2D Arrays<br />

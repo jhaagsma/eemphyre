@@ -89,15 +89,16 @@ if($route->auth){ //IF AUTH IS SET, CHECK IF THERE'S A USER AND AUTH HIM
 	
 	//The & on auth_opt is because passing by reference doesn't work right in call_user_func apparently; though it seems to be working for the route->data and route->path and $user
 	//see http://ca2.php.net/manual/en/language.references.pass.php#99549
-	$auth_opt = call_user_func($route->auth,$route->data,$route->path,$user,&$auth_opt2); //This has redirects inside of it; can return optional $auth_opt; add more auth_opts if you need more
+	$func = $route->auth;
+	$auth_opt = $func($route->data,$route->path,$user,$auth_opt2); //This has redirects inside of it; can return optional $auth_opt; add more auth_opts if you need more
 	//auth_opt is typically $server, auth_opt2 is for $gc and $mc
 }
 
 ob_start();  //START THE OUTPUT BUFFER
 if($route->file)
 	require_once($route->file); //INCLUDE THE FILE THAT HAS THE FUNCTION
-
-$ret = call_user_func($route->function, $route->data, $route->path, $user, $auth_opt, $auth_opt2);  //CALL THE ACTUAL FUNCTION
+$func = $route->function;
+$ret = $func($route->data, $route->path, $user, $auth_opt, $auth_opt2);  //CALL THE ACTUAL FUNCTION
 
 ////SKINNING//////
 include('./skins/skin_class.php');
