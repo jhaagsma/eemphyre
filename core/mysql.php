@@ -224,7 +224,12 @@ new_stdev = SQRT(new_s / (total_num - 1))',
 		switch(gettype($part)){
 			case 'integer': return $part;
 			case 'double':  return $part;
-			case 'string':  return "'" . mysql_real_escape_string($part, $this->con) . "'";
+			case 'string':
+				if(ctype_digit($part)){
+					settype($part, 'integer');
+					return $part;
+				}
+				return "'" . mysql_real_escape_string($part, $this->con) . "'";
 			case 'boolean': return ($part ? 1 : 0);
 			case 'NULL':	return 'NULL';
 			case 'array':
