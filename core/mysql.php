@@ -225,7 +225,7 @@ new_stdev = SQRT(new_s / (total_num - 1))',
 			case 'integer': return $part;
 			case 'double':  return $part;
 			case 'string':
-				if(ctype_digit($part))
+				if(is_numeric($part))
 					return $part;
 				return "'" . mysql_real_escape_string($part, $this->con) . "'";
 			case 'boolean': return ($part ? 1 : 0);
