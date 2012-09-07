@@ -17,7 +17,6 @@ All files are licensed under the GPLv2.
 
 First release, September 3, 2012
 ---------------------------------------------------*/
-
 	$meta_desc = (isset($path->meta_desc) ? "<meta name=\"description\" content=\"".$path->meta_desc."\" />": null);
 	$innerpage_title = (isset($path->page_title) ? $path->page_title . " - empiresPHPframework" : "empiresPHPframework - Example Website using the empiresPHPframework core");
 

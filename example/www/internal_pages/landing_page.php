@@ -37,12 +37,12 @@ END;
 
 function users($data,&$path,&$user){
 	global $db;
-	$users = $db->query("SELECT userid, displayname, registered, logintime FROM users LIMIT 0, 30")->fetchrowset();
+	$showusers = $db->query("SELECT userid, displayname, registered, logintime FROM users LIMIT 0, 30")->fetchrowset();
 	
 	echo "This Page shows up to the first 30 users, as an example; pagination is left as an exercise to the dev...";
 	echo "<table><tr><th>Display Name</th><th>Registered</th><th>Last Login</th></tr>\n";
-	foreach($users as $user){
-		echo '<tr><td><a href="/internal/users/', $user['userid'], '">', $user['displayname'], '</a></td><td>', date('M d Y', $user['registered']), '</td><td>', datetime($user['logintime']), "</td></tr>\n";
+	foreach($showusers as $u){
+		echo '<tr><td><a href="/internal/users/', $u['userid'], '">', $u['displayname'], '</a></td><td>', date('M d Y', $u['registered']), '</td><td>', datetime($u['logintime']), "</td></tr>\n";
 	}
 	echo "</table>";
 	echo '<br /><br /><a href="/internal">Back to Internal</a>';
