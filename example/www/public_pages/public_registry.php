@@ -17,7 +17,7 @@ All files are licensed under the GPLv2.
 
 First release, September 3, 2012
 ---------------------------------------------------*/
-$router->clear_default();
+$router->clear_defaults();
 
 $router->dir_set('./public_pages');
 $router->default_auth('auth_public');
