@@ -219,7 +219,7 @@ class PHPRouter {
 		$data = array();
 		$node = $this->urlroute($s, $this->paths[$type], $path);
 		if(!$node)
-			return new Route(false, array($this,"fourohfour"), $data, $path, false);
+			return new Route(false, 'fourohfour', $data, $path, false);
 		
 		if(is_array($node->inputs)){
 			$source = ($type == "GET" ? $_GET : $_POST);
@@ -356,12 +356,13 @@ class PHPRouter {
 		$ret = (float)$ret*(pow(1000000,$m));
 		return (int)$ret;
 	}
+}
 
-	function fourohfour($data, $path, $user){
-		//trigger_error("404: " . $path->url); //Only set this if you are sending errors somewhere other than the page being displayed
-		header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
-		$path->url = htmlentities($path->url);
-		echo <<<END
+function fourohfour(&$data, &$path, &$user){
+	//trigger_error("404: " . $path->url); //Only set this if you are sending errors somewhere other than the page being displayed
+	header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
+	$path->url = htmlentities($path->url);
+	echo <<<END
 <html>
 <head><title>404</title><link rel='stylesheet' href='/css/public_css.css' type='text/css' /></head>
 <body>
@@ -369,7 +370,6 @@ class PHPRouter {
 </div></div></body>
 </html>
 END;
-	}
 }
 
 
