@@ -21,9 +21,9 @@ First release, September 3, 2012
 ///////////////////////////////////
 //////////  301 section  //////////  
 ///////////////////////////////////
-$router->area_set(null); 
+$router->clear_default();
 //this is to 301 the googlebot which keeps hitting /showclan &etc
-$router->add('GET', '/some_page',		'./public/moved_pages.php',		'moved_some_page');
+$router->add('GET', '/some_page',		'./public/moved_pages.php',		'moved_some_page');  //this is just an example
 
 ///////////////////////////////////
 //////////    END 301s   //////////  

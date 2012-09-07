@@ -26,7 +26,26 @@ class PHPRouter {
 		$this->time = ($filetime ? $filetime : time()); //so we know if it's fresh
 		//$this->paths = array("GET" => new UriPart(), "POST" =>  new UriPart());
 		$this->paths = array("GET" => array(), "POST" =>  array());
+		$this->clear_defaults();
+	}
+	
+	function clear_defaults(){
 		$this->area = array();
+		$this->dir = null;
+		$this->auth = null;
+		$this->skin = null;
+	}
+	
+	function dir_set($dir = null){
+		$this->dir = rtrim($dir,'/');
+	}
+	
+	function default_auth($auth = null){
+		$this->auth = $auth;
+	}
+	
+	function default_skin($skin = null){
+		$this->skin = $skin;
 	}
 	
 	function area_set($area = null){
@@ -80,10 +99,16 @@ class PHPRouter {
 		}
 	}*/
 	
-	function add($type, $url, $file, $function, $inputs = null, $auth = null, $skin=null){ //Testing out array version
+	function add($type, $url, $file, $function, $inputs = null, $auth = false, $skin = false){ //Testing out array version
 		$uri_parts = array_merge($this->area, explode('/', ltrim($url,'/')));
 		$url = implode('/', $uri_parts);
+		$file = ($this->dir && $file[0] != '.' ? $this->dir . '/' . ltrim($file,'/') : $file);
 		$node = array(0=>$file, 1=>$function); //maybe array
+		if($skin === false) //in other words, if they supplied no auth; if they supplied null, it should still set it as null, even if the default is not
+			$skin = $this->skin;
+		if($auth === false)
+			$auth = $this->auth;
+			
 		if($skin){
 			$node[2] = $inputs;
 			$node[3] = $auth;

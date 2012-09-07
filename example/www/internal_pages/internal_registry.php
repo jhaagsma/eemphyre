@@ -17,13 +17,19 @@ All files are licensed under the GPLv2.
 
 First release, September 3, 2012
 ---------------------------------------------------*/
-
-$router->area_set('internal');
+$router->clear_default();
+$router->dir_set('./internal_pages');
+$router->default_auth('auth_login');
+$router->default_skin('internal');
+$router->area_set('internal');  // /internal
 //main page
-$router->add('GET', '/',							'./internal_pages/landing_page.php', 'landing_page', array('error'=>'int'), 'auth_login','internal');
-$router->add('GET', '/users',						'./internal_pages/landing_page.php', 'users',		null, 'auth_login','internal');
-$router->add('GET', '/users/{userid=>u_int}',		'./internal_pages/landing_page.php', 'userpage',	null, 'auth_login','internal');
+$router->add('GET', '/',							'landing_page.php',			'landing_page', array('error'=>'int'));
+$router->add('GET', '/users',						'landing_page.php',			'users');
+$router->add('GET', '/users/{userid=>u_int}',		'landing_page.php',			'userpage');
 
-$router->area_push('admin');
-$router->add('GET', '/',							'./internal_pages/landing_page.php', 'admin',		null, 'auth_admin','admin');
-$router->add('GET', '/show_routing_tree',			'./internal_pages/show_routing_tree.php', 'show_routing_tree', null, 'auth_admin','admin');
+$router->area_push('admin');  // /internal/admin
+$router->default_auth('auth_admin');
+$router->default_skin('admin');
+
+$router->add('GET', '/',							'landing_page.php',			'admin');
+$router->add('GET', '/show_routing_tree',			'show_routing_tree.php',	'show_routing_tree');
