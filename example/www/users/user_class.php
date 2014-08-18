@@ -35,7 +35,7 @@ class User{
 			return;
 		}
 		unset($this->ul['userid']);
-		array_to_obj_vals(&$this, $this->ul);
+		array_to_obj_vals($this, $this->ul);
 	}
 	
 	function refresh_values(){
