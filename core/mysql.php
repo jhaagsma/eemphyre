@@ -18,9 +18,9 @@ All files are licensed under the MIT License.
 First release, September 3, 2012
 ---------------------------------------------------*/
 
-define("DB_ASSOC", MYSQL_ASSOC);
-define("DB_NUM",   MYSQL_NUM);
-define("DB_BOTH",  MYSQL_BOTH);
+define("DB_ASSOC", MYSQLI_ASSOC);
+define("DB_NUM",   MYSQLI_NUM);
+define("DB_BOTH",  MYSQLI_BOTH);
 
 class MysqlDb {
 	public $host;
@@ -34,7 +34,7 @@ class MysqlDb {
 	public $queries;
 	public $querystore;
 
-	function __construct($host, $db, $user, $pass, $persist = false, $seqtable = null, $logqueries = true){
+	function __construct($host, $db, $user, $pass, $persist = false, $seqtable = null, $logqueries = false, $qlog_table = 'queries'){ //logqueries should really be false by default
 
 		$this->host = $host;
 		$this->db = $db;
@@ -46,14 +46,10 @@ class MysqlDb {
 		$this->plogged = false;
 		$this->preparedq = false;
 		$this->querystore = 150;
-		//$this->islogger = $islogger;
-		/*if($this->logqueries && !$this->islogger){
-			global $config;
-			$this->logdb = new MysqlDb($config['host'],$config['db'],$config['log_un'],$config['log_pwd'],false,null,false,true);
-		}*/
 		$this->con = null;
 		$this->lasttime = 0;
-		$this->qlog = "";
+		$this->qlog = null;
+		$this->qlog_table = $qlog_table;
 
 		$this->queries = array();
 		$this->count = 0;
@@ -64,31 +60,38 @@ class MysqlDb {
 		$this->close();
 	}
 	
+	function can_connect(){
+		if(!$this->persist)
+			$this->con = new mysqli($this->host, $this->user, $this->pass, $this->db);
+		else
+			$this->con = new mysqli('p:' . $this->host, $this->user, $this->pass, $this->db);
+			
+		if($this->con->connect_errno)
+			return false;
+			
+		return true;
+	}
+	
 	function connect(){
 		if($this->con){
 			if($this->lasttime > time()-10)
-				return mysql_ping($this->con);
+				return $this->con->ping();
 
 			return true;
 		}
-
-		if(!$this->persist)
-			$this->con = mysql_connect($this->host, $this->user, $this->pass);
-		else
-			$this->con = mysql_pconnect($this->host, $this->user, $this->pass);
-
-		if(!$this->con)
-			trigger_error("Database connect failed",E_USER_ERROR) && exit;
-
-		if(!mysql_select_db($this->db))
-			trigger_error("Can't select this database",E_USER_ERROR) && exit;
+			
+		if(!$this->can_connect()){
+			trigger_error('Connect Error (' . $this->con->connect_errno . ') ' . $this->con->connect_error, E_USER_ERROR);
+			$this->con = null;
+			exit; //if the redirect doesn't exist??
+		}
 
 		return true;
 	}
 
 	function close(){
 		if($this->con){
-			mysql_close($this->con);
+			$this->con->close();
 			$this->con = null;
 		}
 	}
@@ -98,29 +101,20 @@ class MysqlDb {
 			$this->plogged = true;
 			if($this->preparedq != false)
 				$query = $this->preparedq;
-			$this->qlog = 'INSERT INTO queries ... ' . $query;
-			$time = time();			
-				
-			$this->pquery('INSERT INTO queries (hash, strlen, last_time, total_num, total_time, min_time, max_time,avg_time,new_mean,new_s,new_stdev,query,last_page) VALUES (?,?,?,1,?,?,?,?,?,0,0,?,?) ON DUPLICATE KEY
-UPDATE last_time = ?, last_page = ?, total_num = total_num + 1, total_time = total_time + ?, min_time = if(? < min_time,?,min_time),
-max_time = if(max_time < ?, ?, max_time), avg_time = total_time/total_num,
-new_s = new_s + (? - new_mean) * (? - new_mean + (? - new_mean) / total_num),
-new_mean = new_mean + (? - new_mean) / total_num,
-new_stdev = SQRT(new_s / (total_num - 1))',
- 				md5($query), strlen($query), $time, $qtime,$qtime, $qtime, $qtime, $qtime, $query, (isset($_SERVER) ? $_SERVER['PHP_SELF'] : 'bot'),
+			
+			$this->qlog = 'INSERT INTO `' . $this->qlog_table . '`... ' . $query;
+			$time = time();
+			
+			//We should check this function for accuracy again; I never properly checked it methinks
+			$this->pquery('INSERT INTO `' . $this->qlog_table . '` (hash, strlen, last_time, total_num, total_time, min_time, max_time,avg_time,new_mean,new_s,new_stdev,query,last_page)
+				VALUES (?,?,?,1,?,?,?,?,?,0,0,?,?) ON DUPLICATE KEY UPDATE
+				last_time = ?, last_page = ?, total_num = total_num + 1, total_time = total_time + ?, min_time = if(? < min_time,?,min_time),
+				max_time = if(max_time < ?, ?, max_time), avg_time = total_time/total_num, new_s = new_s + (? - new_mean) * (? - new_mean + (? - new_mean) / total_num),
+				new_mean = new_mean + (? - new_mean) / total_num, new_stdev = SQRT(new_s / (total_num - 1))',
+				md5($query), strlen($query), $time, $qtime,$qtime, $qtime, $qtime, $qtime, $query, (isset($_SERVER) ? $_SERVER['PHP_SELF'] : 'bot'),
 				$time, (isset($_SERVER) ? $_SERVER['PHP_SELF'] : 'bot'), $qtime, $qtime, $qtime, $qtime, $qtime, $qtime, $qtime, $qtime, $qtime);
 			//Donald Knuth's "The Art of Computer Programming, Volume 2: Seminumerical Algorithms", section 4.2.2.
 			
-			 			
- 			//$this->queries[] = array($this->logdb->queries[0][0],$this->logdb->querytime);
- 			//$this->logdb->queries = array();
- 			
-			/*$this->qlog = 'INSERT INTO queries_pages ... ';
- 			$this->pquery('INSERT INTO queries_pages (hash, page, strlen, total_num) VALUES (?,?,?,1) ON DUPLICATE KEY UPDATE total_num = total_num + 1',
- 				md5($query), (isset($_SERVER) ? $_SERVER['PHP_SELF'] : 'bot'), strlen($query));*/
- 			
- 			//$this->queries[] = array($this->logdb->queries[0][0],$this->logdb->querytime);
- 			//$this->logdb->queries = array();
 			$this->plogged = false;
 			$this->preparedq = false;
 		}
@@ -132,31 +126,23 @@ new_stdev = SQRT(new_s / (total_num - 1))',
 		$insertid = 0;
 		$affectedrows = 0;
 		$numrows = 0;
-		$countrows = 0;
 		$qt = 0;
 	
-		$this->connect();
+		if(!$this->connect())
+			return false;
 
 		$start = microtime(true);
-
-		$result = mysql_query($query, $this->con);
-
-		//if(substr($query, 0, 6) == "INSERT" || substr($query, 0, 6) == "UDPATE")
-		$insertid = mysql_insert_id($this->con);
-		//if(substr($query, 0, 6) == "UPDATE" || substr($query, 0, 6) == "DELETE" || substr($query, 0, 7) == "REPLACE" || substr($query, 0, 6) == "INSERT")
-		$affectedrows = mysql_affected_rows($this->con);
-		if(substr($query, 0, 6) == "SELECT" || substr($query, 0, 4) == "SHOW"){
-			$numrows = mysql_num_rows($result);//this is mysql unique
-			if(substr($query, 7, 19) == "SQL_CALC_FOUND_ROWS"){//this is mysql unique
-				$res = mysql_query("SELECT FOUNDROWS()");
-				$countrows = mysql_fetch_field($res, 0, 0);
-			}
-		}
+		
+		$result = $this->con->query($query);
+		
+		if(!$result)
+			trigger_error("Query Error: (" . $this->con->errno . ") " . $this->con->error . " : \"$query\"",E_USER_ERROR) && exit;
+		
+		$insertid = $this->con->insert_id;
+		$affectedrows = $this->con->affected_rows;
+		$numrows = (isset($result->num_rows) ? $result->num_rows : 0);
 
 		$end = microtime(true);
-
-		if(!$result)
-			trigger_error("Query Error: (" . mysql_errno($this->con) . ") " . mysql_error($this->con) . " : \"$query\"",E_USER_ERROR) && exit;
 
 		$this->lasttime = time();
 
@@ -173,26 +159,18 @@ new_stdev = SQRT(new_s / (total_num - 1))',
 			array_shift($this->queries);
 			
 		global $debug;
-		if(isset($debug) && $debug && substr($query, 0, 7) != "EXPLAIN" && substr($query, 0, 6) == "SELECT"){
-			$explain = $this->query('EXPLAIN ' . $query,false)->fetchrow();
-			$text = 'EXPLAIN ' . "<br />\n<table><tr>";
-			foreach($explain as $name => $var)
-				$text .= '<td>' . $name . '</td>';
-			$text .= '</tr><tr>';
-			foreach($explain as $var)
-				$text .= '<td>' . $var . '</td>';
-			$text .= '</tr></table>';
-			$this->queries[] = array($text, $this->querytime);
-		}	
+		if(isset($debug) && $debug)
+			$this->debug_query($query); //this returns a little table that does the EXPLAIN of a non-EXPLAIN query in the query list
 		
 		if($this->logqueries && substr($query, 0, 7) != "EXPLAIN")
 			$this->log_em($query,$qt);
-
-		return new MysqlDbResult($result, $this->con, $numrows, $affectedrows, $insertid, $countrows, $qt);
+		
+		return new MysqlDbResult($result, $this->con, $numrows, $affectedrows, $insertid, $qt);
 	}
 
 	function prepare(){
-		$this->connect();
+		if(!$this->connect())
+			return false;
 
 		$args = func_get_args();
 		
@@ -221,13 +199,15 @@ new_stdev = SQRT(new_s / (total_num - 1))',
 	}
 
 	function prepare_part($part){
+
+		
 		switch(gettype($part)){
 			case 'integer': return $part;
 			case 'double':  return $part;
 			case 'string':
 				if(is_numeric($part))
 					return $part;
-				return "'" . mysql_real_escape_string($part, $this->con) . "'";
+				return "'" . $this->con->real_escape_string($part) . "'"; // mysql_real_escape_string($part, $this->con) 
 			case 'boolean': return ($part ? 1 : 0);
 			case 'NULL':	return 'NULL';
 			case 'array':
@@ -275,6 +255,21 @@ new_stdev = SQRT(new_s / (total_num - 1))',
 			return $this->getSeqID($id1, $id2, $area, $table, $start);
 	}
 	
+	function debug_query($query){
+		if(substr($query, 0, 7) != "EXPLAIN" && substr($query, 0, 6) == "SELECT"){
+			$explain = $this->query('EXPLAIN ' . $query,false)->fetchrow();
+			$text = 'EXPLAIN ' . "<br />\n<table><tr>";
+			foreach($explain as $name => $var)
+				$text .= '<td>' . $name . '</td>';
+			$text .= '</tr><tr>';
+			foreach($explain as $var)
+				$text .= '<td>' . $var . '</td>';
+			$text .= '</tr></table>';
+			$this->queries[] = array($text, $this->querytime);
+		}
+		return;
+	}
+	
 }
 
 class MysqlDbResult {
@@ -283,26 +278,24 @@ class MysqlDbResult {
 	public $numrows;
 	public $affectedrows;
 	public $insertid;
-	public $countrows;
 	public $querytime;
 
-	function __construct($result, $dbcon, $numrows, $affectedrows, $insertid, $countrows,$qt){
+	function __construct($result, $dbcon, $numrows, $affectedrows, $insertid, $qt){
 		$this->dbcon = $dbcon;
 		$this->result = $result;
 		$this->numrows = $numrows;
 		$this->affectedrows = $affectedrows;
 		$this->insertid = $insertid;
-		$this->countrows = $countrows;
 		$this->querytime = $qt;
 	}
 	
 	function __destruct(){
-//		$this->free();
+		$this->free();
 	}
 
 	//one row at a time
 	function fetchrow($type = DB_ASSOC){
-		return mysql_fetch_array($this->result, $type);
+		return $this->result->fetch_array($type);
 	}
 
 	//for queries with a single column in a single row
@@ -340,26 +333,22 @@ class MysqlDbResult {
 	}
 
 	function affectedrows(){
-//		return mysql_affected_rows($this->dbcon);
 		return $this->affectedrows;
 	}
 
 	function insertid(){
-//		return mysql_insert_id($this->dbcon);
 		return $this->insertid;
 	}
 	
 	function rows(){
-//		return mysql_num_rows($this->result);
 		return $this->numrows;
 	}
 
-	function count_rows(){
-		return $this->countrows;
-	}
-
 	function free(){
-		return mysql_free_result($this->result);
+		if(!is_object($this->result))
+			return false;
+			
+		return $this->result->free();
 	}
 }
 
