@@ -1,4 +1,18 @@
--change mysql.php to use the mysqli versions
--upgrade router for SPL Fixed Array in php5.3 (perhaps version check, or version comment out or something)
--minify the routing table by storing common attributes in parent (like auth type, base directory, skin)
--add set defaults for auth types, base directories, skin
+
+
+
+
+
+OLD
+-----------
+//-upgrade router for SPL Fixed Array in php5.3 (perhaps version check, or version comment out or something)
+** This was actually slower when done this way
+
+//-minify the routing table by storing common attributes in parent (like auth type, base directory, skin)
+**Done?
+
+//-add set defaults for auth types, base directories, skin
+**Done?
+
+//--change mysql.php to use the mysqli versions
+**Done?

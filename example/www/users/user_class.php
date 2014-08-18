@@ -13,7 +13,7 @@ written by Dave McVittie and Joe Obbish.
 
 The example website files were written by Julian Haagsma.
 
-All files are licensed under the GPLv2.
+All files are licensed under the MIT License.
 
 First release, September 3, 2012
 ---------------------------------------------------*/

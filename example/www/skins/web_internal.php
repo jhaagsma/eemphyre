@@ -13,7 +13,7 @@ written by Dave McVittie and Joe Obbish.
 
 The example website files were written by Julian Haagsma.
 
-All files are licensed under the GPLv2.
+All files are licensed under the MIT License.
 
 First release, September 3, 2012
 ---------------------------------------------------*/
@@ -44,7 +44,8 @@ First release, September 3, 2012
 	<link rel='stylesheet' href="<?php echo $internal_css; ?>" type='text/css' />
 	<link rel='shortcut icon' type='image/x-icon' href='/favicon.ico' />
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
-	<script type="text/javascript" src="<?php echo $internal_js; ?>"></script>
+	<script type="text/javascript" src="<?php echo $internal_js; ?>"></script>
+
 	<?php echo def($path->extra_header,null); ?>	
 </head>
 <body>
