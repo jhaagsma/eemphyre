@@ -1,0 +1,3 @@
+[submodule "eemphyre-core"]
+	path = eemphyre-core
+	url = git@github.com:jhaagsma/eemphyre-core.git
